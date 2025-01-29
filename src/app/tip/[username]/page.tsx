@@ -111,12 +111,14 @@ export default function TipPage() {
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <Card className="w-[380px]">
-          <CardHeader>
-            <CardTitle className="text-xl text-center text-destructive">Error</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-center text-muted-foreground">{error}</p>
+        <Card className="w-full max-w-md">
+          <CardContent className="pt-6">
+            <div className="text-center space-y-2">
+              <p className="text-destructive">{error}</p>
+              <Button variant="outline" onClick={() => window.location.href = '/'}>
+                Return Home
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -124,71 +126,78 @@ export default function TipPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Donation to @{username}</CardTitle>
+        <CardHeader className="text-center space-y-2">
+          <CardTitle className="text-2xl">Support {profile?.username}</CardTitle>
           <CardDescription>
-            Support {username} with a donation
+            Show your appreciation with a donation
           </CardDescription>
         </CardHeader>
+
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                required
-                placeholder="Your name"
-                value={formData.name}
-                onChange={(e) => setFormData(prev => ({
-                  ...prev,
-                  name: e.target.value
-                }))}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="message">Message</Label>
-              <Textarea
-                id="message"
-                required
-                placeholder="Your message"
-                value={formData.message}
-                onChange={(e) => setFormData(prev => ({
-                  ...prev,
-                  message: e.target.value
-                }))}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="amount">Amount (USD)</Label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                  $
-                </span>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Your Name</Label>
                 <Input
-                  id="amount"
+                  id="name"
                   required
-                  type="number"
-                  min="1"
-                  step="0.01"
-                  placeholder="0.00"
-                  className="pl-7"
-                  value={formData.amount}
+                  placeholder="John Doe"
+                  value={formData.name}
                   onChange={(e) => setFormData(prev => ({
                     ...prev,
-                    amount: e.target.value
+                    name: e.target.value
                   }))}
                 />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="message">Message (optional)</Label>
+                <Textarea
+                  id="message"
+                  placeholder="Leave a message..."
+                  className="resize-none"
+                  rows={3}
+                  value={formData.message}
+                  onChange={(e) => setFormData(prev => ({
+                    ...prev,
+                    message: e.target.value
+                  }))}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="amount">Amount (USD)</Label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                    $
+                  </span>
+                  <Input
+                    id="amount"
+                    required
+                    type="number"
+                    min="1"
+                    step="0.01"
+                    placeholder="0.00"
+                    className="pl-7"
+                    value={formData.amount}
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
+                      amount: e.target.value
+                    }))}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Minimum amount: $1.00
+                </p>
               </div>
             </div>
 
             {error && (
-              <p className="text-sm text-destructive text-center">
+              <div className="p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
                 {error}
-              </p>
+              </div>
             )}
 
             <Button 
@@ -196,7 +205,31 @@ export default function TipPage() {
               className="w-full"
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Creating donation...' : 'Donate'}
+              {isSubmitting ? (
+                <div className="flex items-center gap-2">
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                  <span>Processing...</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <span>Continue to Payment</span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="lucide lucide-arrow-right"
+                  >
+                    <path d="M5 12h14" />
+                    <path d="m12 5 7 7-7 7" />
+                  </svg>
+                </div>
+              )}
             </Button>
           </form>
         </CardContent>

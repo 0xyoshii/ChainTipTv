@@ -19,7 +19,7 @@ export async function createCharge(apiKey: string, params: {
         amount: params.amount,
         currency: params.currency
       },
-      redirect_url: window.location.origin,
+      redirect_url: `${window.location.origin}/success`,
       webhook_url: `${window.location.origin}/api/webhooks/${params.username}`
     })
   });
