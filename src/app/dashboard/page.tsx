@@ -79,8 +79,8 @@ export default function Dashboard() {
       setProfile(profile);
       setCommerceKey(profile.coinbase_commerce_key || '');
       setWebhookSecret(profile.webhook_secret || '');
-    } catch (error) {
-      console.error('Error fetching profile:', error);
+    } catch (error: unknown) {
+      console.error('Error fetching profile:', error instanceof Error ? error.message : 'Unknown error');
     } finally {
       setLoading(false);
     }
@@ -145,8 +145,8 @@ export default function Dashboard() {
       setIsEditing(false);
       setEditingField(null);
       fetchProfile();
-    } catch (err: any) {
-      setError(err.message);
+    } catch (error: unknown) {
+      setError(error instanceof Error ? error.message : 'An unknown error occurred');
     }
   };
 

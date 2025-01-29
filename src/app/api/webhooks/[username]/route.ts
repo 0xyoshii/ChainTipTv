@@ -65,8 +65,8 @@ export async function POST(
     }
 
     return new NextResponse('OK', { status: 200 });
-  } catch (error) {
-    console.error('Webhook error:', error);
+  } catch (error: unknown) {
+    console.error('Webhook error:', error instanceof Error ? error.message : error);
     return new NextResponse('Internal error', { status: 500 });
   }
 } 

@@ -49,8 +49,8 @@ export default function TipPage() {
       if (!data.coinbase_commerce_key) throw new Error('User has not set up donations');
       
       setProfile(data);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (error: unknown) {
+      setError(error instanceof Error ? error.message : 'An unknown error occurred');
     } finally {
       setLoading(false);
     }
@@ -90,8 +90,12 @@ export default function TipPage() {
       if (dbError) throw dbError;
 
       window.location.href = charge.data.hosted_url;
-    } catch (err: any) {
-      setError(err.message || 'Failed to create donation. Please try again.');
+    } catch (error: unknown) {
+      setError(
+        error instanceof Error 
+          ? error.message 
+          : 'Failed to create donation. Please try again.'
+      );
       setIsSubmitting(false);
     }
   };
