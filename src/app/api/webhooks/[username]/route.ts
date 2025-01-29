@@ -8,27 +8,33 @@ async function verifySignature(payload: string, signature: string, secret: strin
   return computedSignature === signature;
 }
 
+type RouteContext = {
+  params: {
+    username: string;
+  };
+};
+
 interface WebhookError {
   message: string;
   status?: number;
 }
 
 export async function POST(
-  req: NextRequest,
-  context: { params: { username: string } }
+  request: NextRequest,
+  { params }: RouteContext
 ) {
   try {
-    const signature = req.headers.get('x-cc-webhook-signature');
+    const signature = request.headers.get('x-cc-webhook-signature');
     if (!signature) {
       return new NextResponse('No signature', { status: 401 });
     }
 
-    const payload = await req.text();
+    const payload = await request.text();
     
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('id, webhook_secret')
-      .eq('username', context.params.username)
+      .eq('username', params.username)
       .single();
 
     if (profileError || !profile?.webhook_secret) {
