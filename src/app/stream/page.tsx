@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from '@/lib/supabaseClient';
 import { formatDistance } from 'date-fns';
 import { useRouter } from 'next/navigation';
@@ -35,16 +35,15 @@ export default function StreamPage() {
         return;
       }
 
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('donations')
         .select('*')
         .eq('recipient_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
       setDonations(data || []);
-    } catch (error) {
-      console.error('Error fetching donations:', error);
+    } catch (error: unknown) {
+      console.error('Error fetching donations:', error instanceof Error ? error.message : 'Unknown error');
     } finally {
       setLoading(false);
     }

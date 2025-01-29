@@ -8,6 +8,11 @@ async function verifySignature(payload: string, signature: string, secret: strin
   return computedSignature === signature;
 }
 
+interface WebhookError {
+  message: string;
+  status?: number;
+}
+
 export async function POST(
   req: NextRequest,
   { params }: { params: { username: string } }
@@ -66,7 +71,8 @@ export async function POST(
 
     return new NextResponse('OK', { status: 200 });
   } catch (error: unknown) {
-    console.error('Webhook error:', error instanceof Error ? error.message : error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    console.error('Webhook error:', errorMessage);
     return new NextResponse('Internal error', { status: 500 });
   }
 } 
