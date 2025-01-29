@@ -8,16 +8,10 @@ async function verifySignature(payload: string, signature: string, secret: strin
   return computedSignature === signature;
 }
 
-type RouteContext = {
-  params: {
-    username: string;
-  };
-  searchParams: URLSearchParams;
-};
 
 export async function POST(
   request: NextRequest,
-  context: RouteContext
+  { params }: { params: { username: string } }
 ) {
   try {
     const signature = request.headers.get('x-cc-webhook-signature');
@@ -30,7 +24,7 @@ export async function POST(
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('id, webhook_secret')
-      .eq('username', context.params.username)
+      .eq('username', params.username)
       .single();
 
     if (profileError || !profile?.webhook_secret) {
