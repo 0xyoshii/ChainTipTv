@@ -12,12 +12,8 @@ type RouteContext = {
   params: {
     username: string;
   };
+  searchParams: URLSearchParams;
 };
-
-interface WebhookError {
-  message: string;
-  status?: number;
-}
 
 export async function POST(
   request: NextRequest,
