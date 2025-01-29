@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 import { createHmac } from 'crypto';
 import { supabase } from '@/lib/supabaseClient';
 
@@ -8,16 +9,11 @@ async function verifySignature(payload: string, signature: string, secret: strin
   return computedSignature === signature;
 }
 
-type Props = {
-  params: {
-    username: string;
-  };
-};
 
 export async function POST(
   request: NextRequest,
-  props: Props
-) {
+  { params } : { params: Promise<{ username: string }> }
+): Promise<NextResponse> {
   try {
     const signature = request.headers.get('x-cc-webhook-signature');
     if (!signature) {
@@ -25,11 +21,12 @@ export async function POST(
     }
 
     const payload = await request.text();
+    const { username } = await params;
     
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('id, webhook_secret')
-      .eq('username', props.params.username)
+      .eq('username', username)
       .single();
 
     if (profileError || !profile?.webhook_secret) {
