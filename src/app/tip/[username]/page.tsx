@@ -64,18 +64,17 @@ export default function TipPage() {
     setError(null);
 
     try {
-      // Create Coinbase Commerce charge
       const charge = await createCharge(
         profile.coinbase_commerce_key,
         {
           name: `Donation from ${formData.name}`,
           description: formData.message,
           amount: formData.amount,
-          currency: 'USD'
+          currency: 'USD',
+          username: profile.username
         }
       );
 
-      // Create donation record in database
       const { error: dbError } = await supabase
         .from('donations')
         .insert({
@@ -90,7 +89,6 @@ export default function TipPage() {
 
       if (dbError) throw dbError;
 
-      // Redirect to Coinbase Commerce hosted page
       window.location.href = charge.data.hosted_url;
     } catch (err: any) {
       setError(err.message || 'Failed to create donation. Please try again.');

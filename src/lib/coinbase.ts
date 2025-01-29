@@ -3,6 +3,7 @@ export async function createCharge(apiKey: string, params: {
   description: string;
   amount: string;
   currency: string;
+  username: string;
 }) {
   const response = await fetch('https://api.commerce.coinbase.com/charges', {
     method: 'POST',
@@ -18,7 +19,8 @@ export async function createCharge(apiKey: string, params: {
         amount: params.amount,
         currency: params.currency
       },
-      redirect_url: window.location.origin
+      redirect_url: window.location.origin,
+      webhook_url: `${window.location.origin}/api/webhooks/${params.username}`
     })
   });
 

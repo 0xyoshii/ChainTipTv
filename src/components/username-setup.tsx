@@ -30,7 +30,6 @@ export function UsernameSetup() {
 
       if (updateError) throw updateError;
 
-      // Redirect to dashboard or home page
       router.push('/dashboard');
     } catch (err: any) {
       setError(err.message);
