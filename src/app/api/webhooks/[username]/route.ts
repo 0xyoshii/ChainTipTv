@@ -17,7 +17,7 @@ type RouteContext = {
 
 export async function POST(
   request: NextRequest,
-  { params }: RouteContext
+  context: RouteContext
 ) {
   try {
     const signature = request.headers.get('x-cc-webhook-signature');
@@ -30,7 +30,7 @@ export async function POST(
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('id, webhook_secret')
-      .eq('username', params.username)
+      .eq('username', context.params.username)
       .single();
 
     if (profileError || !profile?.webhook_secret) {
