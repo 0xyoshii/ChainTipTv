@@ -15,7 +15,7 @@ interface WebhookError {
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { username: string } }
+  context: { params: { username: string } }
 ) {
   try {
     const signature = req.headers.get('x-cc-webhook-signature');
@@ -28,7 +28,7 @@ export async function POST(
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('id, webhook_secret')
-      .eq('username', params.username)
+      .eq('username', context.params.username)
       .single();
 
     if (profileError || !profile?.webhook_secret) {
