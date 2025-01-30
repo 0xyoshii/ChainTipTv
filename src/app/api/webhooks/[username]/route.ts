@@ -40,6 +40,7 @@ export async function POST(
 
     const webhookData = JSON.parse(payload);
     const { type, data } = webhookData.event;
+    console.log('Webhook event:', { type, chargeId: data.id });
 
     let status: 'completed' | 'failed';
     switch (type) {
@@ -53,34 +54,29 @@ export async function POST(
         return new NextResponse('OK', { status: 200 });
     }
 
-    // Log the current state
-    const { data: currentDonation } = await supabase
+    const { data: donations, error: findError } = await supabase
       .from('donations')
       .select('*')
-      .eq('charge_id', data.id)
-      .single();
-    
-    console.log('Current donation state:', currentDonation);
-    console.log('Attempting update with:', {
-      status,
-      charge_id: data.id,
-      recipient_id: profile.id
-    });
+      .eq('charge_id', data.id);
 
-    const { data: updatedData, error: updateError } = await supabase
+    console.log('Found donations:', donations);
+
+    if (!donations?.length) {
+      console.error('No donation found with charge_id:', data.id);
+      return new NextResponse('Donation not found', { status: 404 });
+    }
+
+    const { error: updateError } = await supabase
       .from('donations')
       .update({ status })
-      .eq('charge_id', data.id)
-      .eq('recipient_id', profile.id)
-      .select()
-      .single();
+      .eq('charge_id', data.id);
 
     if (updateError) {
       console.error('Error updating donation:', updateError);
       return new NextResponse('Error updating donation', { status: 500 });
     }
 
-    console.log('Updated donation:', updatedData);
+    console.log('Successfully updated donation status to:', status);
     return new NextResponse('OK', { status: 200 });
 
   } catch (error: unknown) {
