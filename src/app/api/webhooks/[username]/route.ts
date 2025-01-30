@@ -40,7 +40,6 @@ export async function POST(
 
     const webhookData = JSON.parse(payload);
     const { type, data } = webhookData.event;
-    console.log('Webhook event:', { type, chargeId: data.id });
 
     let status: 'completed' | 'failed';
     switch (type) {
@@ -59,7 +58,6 @@ export async function POST(
       .select('*')
       .eq('charge_id', data.id);
 
-    console.log('Found donations:', donations);
 
     if (!donations?.length) {
       console.error('No donation found with charge_id:', data.id);
@@ -76,7 +74,6 @@ export async function POST(
       return new NextResponse('Error updating donation', { status: 500 });
     }
 
-    console.log('Successfully updated donation status to:', status);
     return new NextResponse('OK', { status: 200 });
 
   } catch (error: unknown) {

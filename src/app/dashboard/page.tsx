@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { supabase } from '@/lib/supabaseClient';
 import { useRouter } from 'next/navigation';
 import { Separator } from "@/components/ui/separator";
-import { formatDistance } from 'date-fns';
+import { formatDistance, format } from 'date-fns';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 
 interface Profile {
@@ -55,7 +55,7 @@ export default function Dashboard() {
   useEffect(() => {
     if (!isAuthLoading) {
       fetchProfile();
-      fetchDonations();
+      fetchRecentDonations();
     }
   }, [isAuthLoading]);
 
@@ -86,23 +86,22 @@ export default function Dashboard() {
     }
   };
 
-  const fetchDonations = async () => {
+  const fetchRecentDonations = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { data, error } = await supabase
+      // First fetch all donations for stats
+      const { data: allDonations, error: statsError } = await supabase
         .from('donations')
         .select('*')
         .eq('recipient_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      
-      const donations = data || [];
-      setDonations(donations);
+      if (statsError) throw statsError;
 
-      const stats = donations.reduce((acc, donation) => {
+      // Calculate stats from all donations
+      const stats = (allDonations || []).reduce((acc, donation) => {
         acc.totalCount++;
         acc.totalAmount += Number(donation.amount);
         
@@ -119,6 +118,10 @@ export default function Dashboard() {
       });
 
       setStats(stats);
+
+      // Set only the 4 most recent donations for display
+      setDonations(allDonations?.slice(0, 4) || []);
+
     } catch (error) {
       console.error('Error fetching donations:', error);
     }
@@ -199,6 +202,15 @@ export default function Dashboard() {
         </div>
       </div>
     );
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'completed': return 'text-green-500';
+      case 'failed': return 'text-red-500';
+      case 'pending': return 'text-yellow-500';
+      default: return 'text-muted-foreground';
+    }
   };
 
   if (isAuthLoading || loading) {
@@ -455,18 +467,32 @@ export default function Dashboard() {
                             </div>
                           </dd>
                         </div>
-                        <p className="text-sm text-muted-foreground">
-                          Your webhook secret is used to verify Coinbase Commerce notifications. Get it from{' '}
-                          <a 
-                            href="https://beta.commerce.coinbase.com/settings/notifications" 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-primary underline hover:text-primary/80"
-                          >
-                            Coinbase Commerce Notifications
-                          </a>
-                          . Keep this secret secure.
-                        </p>
+                        <div className="space-y-3">
+                          <p className="text-sm text-muted-foreground">
+                            Your webhook secret is used to verify Coinbase Commerce notifications. Get it from{' '}
+                              <a 
+                                href="https://beta.commerce.coinbase.com/settings/notifications" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="text-primary underline hover:text-primary/80"
+                              >
+                                Coinbase Commerce Notifications
+                              </a>
+                              . Keep this secret secure.
+                          </p>
+                          <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+                            <p className="text-sm font-medium">Webhook Setup Instructions:</p>
+                            <p className="text-sm text-muted-foreground">
+                              Set your webhook endpoint URL to:
+                            </p>
+                            <code className="block text-xs bg-background px-3 py-2 rounded-md">
+                              https://chaintip.tv/api/webhooks/{profile?.username}
+                            </code>
+                            <p className="text-xs text-muted-foreground">
+                              Make sure to replace <span className="font-mono bg-muted px-1 rounded">{profile?.username}</span> with your actual username as shown above.
+                            </p>
+                          </div>
+                        </div>
                       </div>
 
                       {/* Edit Form */}
@@ -525,11 +551,7 @@ export default function Dashboard() {
                             <span>
                               {formatDistance(new Date(donation.created_at), new Date(), { addSuffix: true })}
                             </span>
-                            <span className={`px-2 py-0.5 rounded-full text-xs ${
-                              donation.status === 'completed' ? 'bg-green-500/10 text-green-500' :
-                              donation.status === 'failed' ? 'bg-red-500/10 text-red-500' :
-                              'bg-yellow-500/10 text-yellow-500'
-                            }`}>
+                            <span className={`px-2 py-0.5 rounded-full text-xs ${getStatusColor(donation.status)}`}>
                               {donation.status.charAt(0).toUpperCase() + donation.status.slice(1)}
                             </span>
                           </div>
