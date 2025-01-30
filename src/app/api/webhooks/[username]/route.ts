@@ -56,18 +56,36 @@ export async function POST(
         return new NextResponse('OK', { status: 200 });
     }
 
-    const { error: updateError } = await supabase
+    // Log the current state
+    const { data: currentDonation } = await supabase
+      .from('donations')
+      .select('*')
+      .eq('charge_id', data.id)
+      .single();
+    
+    console.log('Current donation state:', currentDonation);
+    console.log('Attempting update with:', {
+      status,
+      charge_id: data.id,
+      recipient_id: profile.id
+    });
+
+    const { data: updatedData, error: updateError } = await supabase
       .from('donations')
       .update({ status })
       .eq('charge_id', data.id)
-      .eq('recipient_id', profile.id);
+      .eq('recipient_id', profile.id)
+      .select()
+      .single();
 
     if (updateError) {
       console.error('Error updating donation:', updateError);
       return new NextResponse('Error updating donation', { status: 500 });
     }
 
+    console.log('Updated donation:', updatedData);
     return new NextResponse('OK', { status: 200 });
+
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     console.error('Webhook error:', errorMessage);
