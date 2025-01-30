@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { createHmac } from 'crypto';
-import { supabase } from '@/lib/supabaseClient';
+import { supabaseAdmin as supabase } from '@/lib/supabaseClient';
 
 async function verifySignature(payload: string, signature: string, secret: string) {
   const hmac = createHmac('sha256', secret);
