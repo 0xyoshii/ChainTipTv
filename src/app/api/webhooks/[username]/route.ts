@@ -41,11 +41,8 @@ export async function POST(
     const webhookData = JSON.parse(payload);
     const { type, data } = webhookData.event;
 
-    let status: 'pending' | 'completed' | 'failed';
+    let status: 'completed' | 'failed';
     switch (type) {
-      case 'charge:pending':
-        status = 'pending';
-        break;
       case 'charge:confirmed':
         status = 'completed';
         break;
