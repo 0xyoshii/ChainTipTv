@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import { Separator } from "@/components/ui/separator";
 import { formatDistance, format } from 'date-fns';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { Check, Copy, Link } from "lucide-react";
 
 interface Profile {
   username: string;
@@ -51,6 +52,7 @@ export default function Dashboard() {
   });
   const [editingField, setEditingField] = useState<'api_key' | 'webhook_secret' | null>(null);
   const router = useRouter();
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (!isAuthLoading) {
@@ -213,6 +215,13 @@ export default function Dashboard() {
     }
   };
 
+  const copyTipLink = async () => {
+    const tipLink = `https://chaintip.tv/tip/${profile?.username}`;
+    await navigator.clipboard.writeText(tipLink);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   if (isAuthLoading || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -240,27 +249,46 @@ export default function Dashboard() {
               Here's an overview of your donations
             </p>
           </div>
-          <Button 
-            onClick={() => router.push('/stream')}
-            className="gap-2"
-          >
-            <span>Donations Stream</span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="lucide lucide-arrow-right"
+          <div className="flex gap-3">
+            <Button 
+              variant="outline"
+              onClick={copyTipLink}
+              className="gap-2"
             >
-              <path d="M5 12h14" />
-              <path d="m12 5 7 7-7 7" />
-            </svg>
-          </Button>
+              {copied ? (
+                <>
+                  <Check className="h-4 w-4" />
+                  <span>Copied!</span>
+                </>
+              ) : (
+                <>
+                  <Link className="h-4 w-4" />
+                  <span>Get Tip Link</span>
+                </>
+              )}
+            </Button>
+            <Button 
+              onClick={() => router.push('/stream')}
+              className="gap-2"
+            >
+              <span>Donations Stream</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="lucide lucide-arrow-right"
+              >
+                <path d="M5 12h14" />
+                <path d="m12 5 7 7-7 7" />
+              </svg>
+            </Button>
+          </div>
         </div>
 
         {/* Statistics Cards */}
