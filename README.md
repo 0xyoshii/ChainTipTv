@@ -1,5 +1,5 @@
 ## ChainTip.tv
-ChainTip.tv enables streamers and creators to accept Crypto payments as donations, powered by Coinbase Commerce.
+[ChainTip](https://www.chaintip.tv) enables streamers and creators to accept Crypto payments as donations, powered by Coinbase Commerce.
 To get started, sign up with google, set a username and set the required Coinbase Commerce credentials.
 You will then want to share your tip link to your fanbase!
 
